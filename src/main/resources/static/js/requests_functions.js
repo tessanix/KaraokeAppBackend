@@ -1,45 +1,30 @@
-const socket = new WebSocket("ws://192.168.0.11:8080/websocketrequestspage")
+import { BASE_URL, BASE_SOCKET_URL, logout } from './shared_variables.js'
 
-const returnToHomePageButton = document.getElementById("returnToHomePageButton");
-const openFormButton = document.getElementById("openFormButton");
-const clientRequestsListContainer = document.getElementById('clientRequestsListContainer');
+const socket = new WebSocket(BASE_SOCKET_URL+"/websocketrequestspage")
 
-returnToHomePageButton.addEventListener('click', (event) => {
-     window.location.href = "http://192.168.0.11:8080/login";
+const returnToHomePageButton = document.getElementById("returnToHomePageButton")
+const openFormButton = document.getElementById("openFormButton")
+const logoutButton = document.querySelector('#logoutButton')
+let deleteButtons = document.querySelectorAll('.deleteRequestButton')
+const addRequestForm = document.getElementById('addRequestForm')
+
+returnToHomePageButton.addEventListener('click', () => {
+    window.location.href = BASE_URL+"/login"
 })
 
-openFormButton.addEventListener("click", function() {
-    addSongForm.style.display = "block";
-});
-
-document.querySelector('#logoutButton').addEventListener('click', (event) => {
-    fetch(
-        '/logout',
-        {method: 'GET'}
-    )
-    .then( response => {
-         if (response.status === 200) {
-             console.log(response)
-             window.location.href = response.url;
-         } else {
-             throw new Error('Login failed');
-         }
-    })
-     .catch(error => {
-         console.error(error);
-     });
+openFormButton.addEventListener("click", () => {
+    addRequestForm.style.display = "block"
 })
 
-const deleteButtons = document.querySelectorAll('.deleteRequestButton');
+logoutButton.addEventListener('click', logout)
+
 
 deleteButtons.forEach( button => {
     button.addEventListener('click', deleteListener)
-  }
-);
+})
 
 function deleteListener(event) {
-    const requestId =  event.target.getAttribute('data-request-id');
-    console.log(requestId)
+    const requestId =  event.target.getAttribute('data-request-id')
     socket.send(JSON.stringify(
         {
           action: 'deleteRequest',
@@ -49,87 +34,87 @@ function deleteListener(event) {
 }
 
 
+addRequestForm.addEventListener('submit', (event) => {
+    event.preventDefault() // Empêche le comportement par défaut d'envoyer le formulaire à une nouvelle page
+    const formData = new FormData(event.target) // Récupère les données du formulaire
+
+    socket.send(JSON.stringify(
+    {
+        action: 'addRequest',
+        data: {
+            clientName: formData.get('clientName'),
+            title: formData.get('title'),
+            author: formData.get('author')
+        }
+    }
+    ))
+})
+
 
 socket.onmessage = (event) => {
 
     const data = JSON.parse(event.data)
-    console.log(data)
-
+    //console.log(data)
     if(data.action === "deleteRequest"){
-        requestDeletedResponse(data.data.id)
+        removeRequestElementById(data.data.id)
     } else if (data.action === "addRequest"){
-        addRequestToContainer(data.data.clientName, data.data.id, data.data.title, data.data.author)
+        addRequestElementOfAClient(data.data.clientName, data.data.id, data.data.title, data.data.author)
     }
 }
 
 
-function requestDeletedResponse(requestId) {
-    const deleteButtons = document.getElementsByClassName('deleteRequestButton');
-
-    for (let i = 0; i < deleteButtons.length; i++) {
-        const button = deleteButtons[i];
-        const buttonRequestId = button.getAttribute('data-request-id');
-        if (buttonRequestId === requestId) {
-            console.log(requestId)
-            const listRequestElement = button.parentNode.parentNode
-            const liElement = button.parentNode
-            listRequestElement.removeChild(liElement)
-
-
-            if (listRequestElement.childElementCount == 0) {
-                const h3Element = clientRequestsListContainer.querySelector('h3');
-                clientRequestsListContainer.removeChild(listRequestElement)
-                clientRequestsListContainer.removeChild(h3Element)
-            }
-
-            break;
-
+function removeRequestElementById(requestId) {
+    // Find the <li> element with the given request ID
+    const liElement = document.querySelector(`li.request[data-request-id="${requestId}"]`)
+    if (liElement) {
+      // Find the parent <ul> element and remove the <li> element
+      const ulElement = liElement.parentNode
+      ulElement.removeChild(liElement)
+  
+      // If the <ul> element is empty, remove it and the corresponding <h3> element
+      if (ulElement.children.length === 0) {
+        const h3Element = ulElement.previousElementSibling
+        ulElement.parentNode.removeChild(h3Element)
+        ulElement.parentNode.removeChild(ulElement)
       }
     }
-
-}
-
-function addRequestToContainer(clientName, requestId, title, author) {
-  const clientRequestsListContainer = document.getElementById("clientRequestsListContainer");
-  let requestsOfAClient = null;
-
-  // Look for existing 'requestsOfAClient' element
-  for (let i = 0; i < clientRequestsListContainer.children.length; i++) {
-    const child = clientRequestsListContainer.children[i];
-    if (child.tagName === "UL" && child.classList.contains("requestsOfAClient") && child.previousSibling.textContent.trim() === `${clientName} demande:`) {
-      requestsOfAClient = child;
-      break;
-    }
-  }
-
-  // If 'requestsOfAClient' not found, create it along with the h3 title
-  if (!requestsOfAClient) {
-    const h3 = document.createElement("h3");
-    h3.textContent = `${clientName} demande:`;
-    requestsOfAClient = document.createElement("ul");
-    requestsOfAClient.classList.add("requestsOfAClient");
-    clientRequestsListContainer.appendChild(h3);
-    clientRequestsListContainer.appendChild(requestsOfAClient);
-  }
-
-  // Create new 'request' element and append to 'requestsOfAClient'
-  const requestElement = document.createElement("li");
-  requestElement.classList.add("request");
-  requestElement.dataset.requestId = requestId
-
-  const requestText = document.createElement("p");
-  requestText.classList.add("request_element");
-  requestText.textContent = `${title} | ${author}`;
-
-  const deleteButton = document.createElement("button");
-  deleteButton.classList.add("deleteRequestButton");
-  deleteButton.dataset.clientName = clientName;
-  deleteButton.dataset.requestId = requestId
-  deleteButton.textContent = "Supprimer";
-
-  requestElement.appendChild(requestText);
-  requestElement.appendChild(deleteButton);
-  requestsOfAClient.appendChild(requestElement);
 }
 
 
+function addRequestElementOfAClient(clientName, requestId, title, author) {
+    // Check if the <ul> element already exists for the given clientName
+    let ulElement = document.querySelector(`ul.requestsOfAClient[data-client-name="${clientName}"]`)
+
+  if (!ulElement) {
+    // If the <ul> element doesn't exist, create a new one
+    ulElement = document.createElement('ul')
+    ulElement.classList.add('requestsOfAClient')
+    ulElement.setAttribute('data-client-name', clientName)
+
+    const containerElement = document.getElementById('clientRequestsListContainer')
+    const h3Element = document.createElement('h3')
+    h3Element.textContent = clientName
+    containerElement.appendChild(h3Element)
+    containerElement.appendChild(ulElement)
+  }
+
+  // Add a new <li> element to the <ul> element
+  const liElement = document.createElement('li')
+  liElement.classList.add('request')
+  liElement.setAttribute('data-request-id', requestId)
+
+  const pElement = document.createElement('p')
+  pElement.classList.add('request_element')
+  pElement.textContent = `${title} | ${author}`
+
+  const buttonElement = document.createElement('button')
+  buttonElement.classList.add('deleteRequestButton')
+  buttonElement.setAttribute('data-client-name', clientName)
+  buttonElement.setAttribute('data-request-id', requestId)
+  buttonElement.textContent = 'Supprimer'
+  buttonElement.addEventListener('click', deleteListener)
+
+  liElement.appendChild(pElement)
+  liElement.appendChild(buttonElement)
+  ulElement.appendChild(liElement)
+}

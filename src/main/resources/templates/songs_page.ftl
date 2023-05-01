@@ -1,36 +1,32 @@
+<#ftl encoding="utf-8">
+<#import "_menu_layout.ftl" as menu_layout />
 <!DOCTYPE html>
 <html lang="eng">
     <head>
-        <title>Songs by Category</title>
+        <meta charset="UTF-8">
+        <title>Sons par Categories</title>
         <link href="songs_style.css" rel="stylesheet" />
-        <script defer src="songs_functions.js"></script>
+        <script defer type="module" src="songs_functions.js"></script>
     </head>
 
     <body>
-        <div class="menu">
-            <button id="openFormButton">Ajouter un son</button>
-            <button id="returnToHomePageButton">Accueil</button>
-            <button id="logoutButton">Se déconnecter</button>
-        </div>
+        <@menu_layout.menu addName="Ajouter un son">
+        </@menu_layout.menu>
+
 
         <div class="content">
             <h1>Musiques par catégories</h1>
+
+            <input type="text" id="searchInput" placeholder="Rechercher un song...">
+            
             <div id="songsMapContainer">
                 <ul>
-                    <#list songsMapByCategories?keys as category>
-                        <li class="category">${category}</li>
-                            <ul class="songList">
-                            <#list songsMapByCategories[category] as song>
-                                <li>
-                                    ${song.title} by ${song.author}
-                                    <button class="deleteSongButton" data-song-id="${song.id}" data-category="${category}">Supprimer</button>
-                                </li>
-                            </#list>
-                        </ul>
-                    </#list>
                 </ul>
             </div>
+
         </div>
+
+ 
 
         <div id="addSongForm">
             <button id="closeFormButton">X</button>
@@ -44,13 +40,11 @@
                 <input type="text" id="author" name="author" required><br><br>
 
                 <select name="category">
-                    <#list songsMapByCategories?keys as category>
-                        <option value="${category}">${category}</option>
-                    </#list>
                 </select>
 
                 <input type="submit" value="Envoyer">
             </form>
         </div>
     </body>
+    
 </html>

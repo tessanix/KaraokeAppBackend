@@ -5,6 +5,7 @@ build/
 !**/src/test/**/build/
 
 keys/
+src/main/resources/database/admin_credentials.json
 
 ### STS ###
 .apt_generated

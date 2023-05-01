@@ -10,10 +10,8 @@ import io.ktor.server.websocket.*
 import java.time.Duration
 
 
-fun Application.configureSockets(
-    jsonOperationsOnRequests : JsonOperationsOnRequests,
-    jsonOperationsOnSongs: JsonOperationsOnSongs
-) {
+fun Application.configureSockets(jsonOperationsOnRequests : JsonOperationsOnRequests) {
+
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -22,10 +20,8 @@ fun Application.configureSockets(
     }
 
     routing{
-        songsSockets(jsonOperationsOnSongs)
         requestsSocket(jsonOperationsOnRequests)
     }
-
 }
 
 

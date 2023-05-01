@@ -1,9 +1,11 @@
 package com.mizikarocco.sockets
 
-import com.mizikarocco.data.Connection
 import com.mizikarocco.data.requests.WebSocketResponse
+import com.mizikarocco.data.session.HttpUserSession
+import com.mizikarocco.data.session.WebSocketUserSession
 import com.mizikarocco.utils.JsonOperationsOnRequests
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.serialization.encodeToString
@@ -11,28 +13,38 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.util.*
-import kotlin.collections.LinkedHashSet
 
+
+fun generateNewId(connections: Map<String, WebSocketUserSession>): String{
+    var newId = UUID.randomUUID().toString()
+    while(connections.keys.contains(newId)){
+        newId = UUID.randomUUID().toString()
+    }
+    return newId
+}
 
 fun Route.requestsSocket(
     jsonOperationsOnRequests : JsonOperationsOnRequests
 ){
-    val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+    //val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+    val connections = Collections.synchronizedMap<String, WebSocketUserSession>(HashMap())
 
     webSocket("/websocketrequestspage") {
         // websocketSession
         //println("Adding user!")
-        val thisConnection = Connection(this)
-        connections += thisConnection
+        val thisConnection = WebSocketUserSession(this)
+        val userSession = call.sessions.get<HttpUserSession>()
+        val userId = if (userSession != null) "0000000000" else generateNewId(connections)
+        connections[userId] = thisConnection
         try {
             for (frame in incoming) {
 
                 if (frame is Frame.Text) {
+
                     val messageJson = Json.parseToJsonElement(frame.readText())
                     val action = messageJson.jsonObject["action"]?.jsonPrimitive?.content
                     val data = messageJson.jsonObject["data"]?.jsonObject!!
                     var response: WebSocketResponse? = null
-                    println("DATA: $data")
                     when (action) {
                         "addRequest" -> {
                             val clientName = data["clientName"]?.jsonPrimitive?.content!!
@@ -44,12 +56,16 @@ fun Route.requestsSocket(
                         "deleteRequest" -> {
                             val uuid = data["id"]?.jsonPrimitive?.content!!
                             jsonOperationsOnRequests.deleteFromDatabase(id = uuid)
-                            response = buildResponse(uuid, action, mutableMapOf())
+                            response = buildResponse( uuid, action, mutableMapOf())
                         }
                     }
-                    connections.forEach {
-                        it.session.send(
-                        Frame.Text(Json.encodeToString(response)))
+                    println("USER ID: $userId")
+                    println("RESPONSE: $response")
+                    if (userId == "0000000000") connections[userId]?.session?.send( Frame.Text(Json.encodeToString(response)) )
+                    else{
+                        connections.values.forEach {
+                            it.session.send( Frame.Text(Json.encodeToString(response)) )
+                        }
                     }
                 }
             }
@@ -57,14 +73,14 @@ fun Route.requestsSocket(
             println(e.localizedMessage)
         } finally {
             println("Removing $thisConnection!")
-            connections -= thisConnection
+            connections.remove(userId)
         }
     }
 
 }
 
 
-fun buildResponse(uuid:String?, action:String, data:MutableMap<String,String>) : WebSocketResponse {
+fun buildResponse( uuid:String?, action:String, data:MutableMap<String,String>) : WebSocketResponse {
     return if(uuid!=null){
         data["id"] = uuid
         WebSocketResponse(action = action, status = "Success", data = data)

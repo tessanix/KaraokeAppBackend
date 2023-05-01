@@ -83,6 +83,7 @@ class JsonOperationsOnRequests(gson: Gson) : JsonOperations(gson) {
             val clientName = request["clientName"]!!
             val clientRequest = ClientRequest(
                 request["id"]!!,
+                //request["clientName"]!!,
                 request["title"]!!,
                 request["author"]!!
             )

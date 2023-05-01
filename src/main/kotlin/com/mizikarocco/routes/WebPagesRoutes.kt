@@ -2,6 +2,7 @@ package com.mizikarocco.routes
 
 import com.mizikarocco.utils.JsonOperationsOnRequests
 import com.mizikarocco.utils.JsonOperationsOnSongs
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.freemarker.*
@@ -10,14 +11,14 @@ import io.ktor.server.routing.*
 
 
 fun Route.songsPage(
-    jsonOperationsOnSongs : JsonOperationsOnSongs
+    //jsonOperationsOnSongs : JsonOperationsOnSongs
 ) {
     authenticate("auth-session") {
         get("songs") {
             call.respond(
                 FreeMarkerContent(
-                    "songs_page.ftl",
-                    mapOf("songsMapByCategories" to jsonOperationsOnSongs.getAllFromDatabase())
+                    "songs_page.ftl", null
+                    //mapOf("songsMapByCategories" to jsonOperationsOnSongs.getAllFromDatabase())
                 )
             )
         }

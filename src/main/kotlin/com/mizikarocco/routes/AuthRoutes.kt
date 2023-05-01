@@ -1,6 +1,6 @@
 package com.mizikarocco.routes
 
-import com.mizikarocco.data.session.UserSession
+import com.mizikarocco.data.session.HttpUserSession
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,18 +13,18 @@ fun Route.authRoutes() {
     authenticate("auth-form") {
         post("send_login") {
             val userName = call.principal<UserIdPrincipal>()?.name.toString()
-            call.sessions.set(UserSession(name = userName, count = 1))
+            call.sessions.set(HttpUserSession(name = userName, count = 1))
             call.respond(HttpStatusCode.OK)
         }
     }
 
     get("/logout") {
-        call.sessions.clear<UserSession>()
+        call.sessions.clear<HttpUserSession>()
         call.respondRedirect("/login")
     }
 
     get("/session") {
-        val userSession = call.sessions.get<UserSession>()
+        val userSession = call.sessions.get<HttpUserSession>()
         if (userSession != null) {
             call.respondText(
                 "Session found!",

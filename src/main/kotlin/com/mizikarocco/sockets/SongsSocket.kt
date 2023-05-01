@@ -1,7 +1,7 @@
 package com.mizikarocco.sockets
 
-import com.mizikarocco.data.Connection
 import com.mizikarocco.data.requests.WebSocketResponse
+import com.mizikarocco.data.session.WebSocketUserSession
 import com.mizikarocco.utils.JsonOperationsOnSongs
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -16,12 +16,12 @@ import kotlin.collections.LinkedHashSet
 fun Route.songsSockets(
     jsonOperationsOnSongs: JsonOperationsOnSongs
 ){
-        val connections = Collections.synchronizedSet<Connection?>(LinkedHashSet())
+        val connections = Collections.synchronizedSet<WebSocketUserSession?>(LinkedHashSet())
 
         webSocket("/websocketsongspage") {
             // websocketSession
             //println("Adding user!")
-            val thisConnection = Connection(this)
+            val thisConnection = WebSocketUserSession(this)
             connections += thisConnection
             try {
                 for (frame in incoming) {

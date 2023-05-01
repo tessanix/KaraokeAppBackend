@@ -30,12 +30,8 @@ fun Route.addNewSong(
         val author = formData["author"]
         val cat = formData["category"]
 
-        call.respond(HttpStatusCode.OK)
-        jsonOperationsOnSongs.addToDatabase(cat!!, title!!, author!!)
-
-        println(title)
-        println(author)
-        println(cat)
+        val id = jsonOperationsOnSongs.addToDatabase(cat!!, title!!, author!!)
+        call.respond(HttpStatusCode.OK, mapOf("id" to id))
     }
 }
 
@@ -44,10 +40,6 @@ fun Route.deleteSong(
 ) {
     delete("/deleteSong") {
         val songId = call.request.queryParameters["songId"]!!
-        val category = call.request.queryParameters["category"]!!
-        // handle the delete request here, using the songId and param2 parameters
-        println("song id :$songId")
-        println("category :$category")
 
         jsonOperationsOnSongs.deleteFromDatabase(songId)
         call.respondText("Song deleted successfully")

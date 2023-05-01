@@ -16,7 +16,7 @@ fun Application.configureRouting(
 
         loginPage()
 
-        songsPage(jsonOperationsOnSongs)
+        songsPage()
 
         clientRequestsPage(jsonOperationsOnRequests)
 
@@ -28,8 +28,6 @@ fun Application.configureRouting(
 
         staticRoutes()
 
-        //sendClientRequest()
     }
-
 }
 

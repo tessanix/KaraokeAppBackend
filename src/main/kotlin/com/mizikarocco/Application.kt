@@ -21,7 +21,7 @@ fun Application.module() {
     configureTemplating()
     configureSerialization()
     configureMonitoring()
-    configureSecurity()
-    configureSockets( jsonOperationsOnRequests,jsonOperationsOnSongs )
-    configureRouting( jsonOperationsOnRequests,jsonOperationsOnSongs )
+    configureSecurity( gson )
+    configureSockets( jsonOperationsOnRequests )
+    configureRouting( jsonOperationsOnRequests, jsonOperationsOnSongs )
 }

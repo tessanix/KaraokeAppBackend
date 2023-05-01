@@ -2,8 +2,16 @@ package com.mizikarocco.utils
 
 import com.google.gson.Gson
 import java.io.File
+import kotlin.reflect.jvm.javaType
+import kotlin.reflect.typeOf
 
-const val DATABASE_PATH_FROM_UTILS = "src/main/resources/database/" // "/root/KaraokeAppBackend/database/"
+const val DATABASE_PATH_FROM_UTILS = "src/main/resources/database/" //   "/root/KaraokeAppBackend/database/"
+
+fun getAdminCredentials(gson: Gson) : List<Map<String, String>> {
+    val credentialsFile = File(DATABASE_PATH_FROM_UTILS + "admin_credentials.json")
+    val credentialsListType = typeOf<MutableList<Map<String, String>>>().javaType
+    return credentialsFile.reader().use { reader -> gson.fromJson(reader, credentialsListType) }
+}
 
 abstract class JsonOperations(val gson: Gson) {
 
