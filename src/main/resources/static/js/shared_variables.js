@@ -1,4 +1,4 @@
-const BASE_ADDR = "192.168.0.11"  // "193.43.134.143"
+const BASE_ADDR = "192.168.1.19" //"193.43.134.143"
 
 export const BASE_URL = "http://"+BASE_ADDR+":8080"
 export const BASE_SOCKET_URL = "ws://"+BASE_ADDR+":8080"

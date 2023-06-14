@@ -60,12 +60,6 @@
     "author": "37 DEGRES"
   },
   {
-    "id": "16d6cae4-d40f-426b-8898-730b1e207f31",
-    "clientName": "Arthur",
-    "title": "Baimbridge cho",
-    "author": "ADMIRAL T"
-  },
-  {
     "id": "1fc1e582-a104-47b2-9030-983101b4d42d",
     "clientName": "bart",
     "title": "Education créole",
@@ -88,5 +82,11 @@
     "clientName": "MarjolaJojo",
     "title": "Chat\u0027 ka tété rat",
     "author": "ADMIRAL T feat Jacob"
+  },
+  {
+    "id": "8a03accf-44c6-4a6b-8bac-f52b7383c0cd",
+    "clientName": "Malorie",
+    "title": "Elle était si jolie",
+    "author": "Alain Barriere"
   }
 ]

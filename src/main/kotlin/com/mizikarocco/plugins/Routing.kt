@@ -27,7 +27,6 @@ fun Application.configureRouting(
         getAllSongs(jsonOperationsOnSongs)
 
         staticRoutes()
-
     }
 }
 

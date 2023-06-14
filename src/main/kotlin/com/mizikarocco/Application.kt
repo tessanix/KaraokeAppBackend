@@ -1,10 +1,10 @@
 package com.mizikarocco
 
 import com.google.gson.GsonBuilder
-import io.ktor.server.application.*
 import com.mizikarocco.plugins.*
 import com.mizikarocco.utils.JsonOperationsOnRequests
 import com.mizikarocco.utils.JsonOperationsOnSongs
+import io.ktor.server.application.*
 
 
 fun main(args: Array<String>): Unit =

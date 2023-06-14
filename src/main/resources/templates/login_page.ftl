@@ -6,7 +6,6 @@
         <title>Page de connexion</title>
         <link href="login_style.css" rel="stylesheet" />
         <script defer type="module" src="login_functions.js"></script>
-
     </head>
     <body>
 

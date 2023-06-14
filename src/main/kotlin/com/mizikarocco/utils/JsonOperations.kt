@@ -5,7 +5,7 @@ import java.io.File
 import kotlin.reflect.jvm.javaType
 import kotlin.reflect.typeOf
 
-const val DATABASE_PATH_FROM_UTILS = "src/main/resources/database/" //   "/root/KaraokeAppBackend/database/"
+const val DATABASE_PATH_FROM_UTILS =   "src/main/resources/database/" // "/root/KaraokeAppBackend/database/"
 
 fun getAdminCredentials(gson: Gson) : List<Map<String, String>> {
     val credentialsFile = File(DATABASE_PATH_FROM_UTILS + "admin_credentials.json")
